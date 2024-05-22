@@ -83,6 +83,9 @@ require("lazy").setup({
 			require("workspaces").setup()
 		end,
 	},
+	{ "honza/vim-snippets" },
+	{ "SirVer/ultisnips", event = "InsertEnter" },
+	{ "dstein64/vim-startuptime" },
 })
 
 vim.opt.termguicolors = true
@@ -95,3 +98,15 @@ require("config.keybinding.copilot")
 
 local viml_conf_dir = vim.fn.stdpath("config") .. "/vim/"
 vim.cmd("source " .. viml_conf_dir .. "autocommands.vim")
+vim.g.UltiSnipsSnippetDirectories = { "UltiSnips" }
+vim.g.UltiSnipsExpandTrigger = "<Tab>"
+vim.g.UltiSnipsJumpForwardTrigger = "<c-j>"
+vim.g.UltiSnipsJumpBackwardTrigger = "<c-k>"
+-- vim.g.UltiSnipsEnableSnipMate = 0  -- Disable SnipMate compatibility
+vim.g.UltiSnipsSnippetDirectories = { "UltiSnips" } -- Only load snippets from UltiSnips directory
+vim.g.UltiSnipsEditSplit = "vertical" -- Use vertical split for editing snippets
+vim.g.UltiSnipsUsePythonVersion = 3 -- Ensure Python3 is used
+
+-- Performance optimizations
+vim.o.lazyredraw = true -- Reduces flickering by not redrawing while executing macros
+vim.o.updatetime = 300 -- Reduce the time it takes to trigger the CursorHold event
