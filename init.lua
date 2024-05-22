@@ -16,6 +16,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	{ import = "plugins" },
+	"williamboman/mason-lspconfig.nvim",
 	"LunarVim/bigfile.nvim",
 	{
 		"nvim-telescope/telescope.nvim",
@@ -140,6 +141,7 @@ require("lazy").setup({
 			require("pretty-fold").setup()
 		end,
 	},
+	"anuvyklack/keymap-amend.nvim",
 	{
 		"anuvyklack/fold-preview.nvim",
 		requires = "anuvyklack/keymap-amend.nvim",
@@ -177,3 +179,6 @@ vim.o.updatetime = 300 -- Reduce the time it takes to trigger the CursorHold eve
 
 require("lsp_signature").setup({})
 require("gitblame").setup({ enable = true })
+
+require("mason").setup()
+require("mason-lspconfig").setup()

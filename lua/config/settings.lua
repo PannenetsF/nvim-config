@@ -106,12 +106,17 @@ M.load_headless_options = function()
 	vim.opt.swapfile = false -- don't use a swap file
 end
 
+M.load_global_options = function()
+	vim.g.mapleader = " "
+end
+
 M.load_defaults = function()
 	if #vim.api.nvim_list_uis() == 0 then
 		M.load_headless_options()
 		return
 	end
 	M.load_default_options()
+	M.load_global_options()
 end
 
 return M
