@@ -5,6 +5,7 @@ local lsp = vim.lsp
 local diagnostic = vim.diagnostic
 
 local utils = require("utils")
+local whichkey = require("which-key")
 
 -- set quickfix list from diagnostics in a certain buffer, not the whole workspace
 local set_qflist = function(buf_num, severity)
@@ -50,7 +51,7 @@ local custom_attach = function(client, bufnr)
 
 	-- Set some key bindings conditional on server capabilities
 	if client.server_capabilities.documentFormattingProvider then
-		map("n", "<space>f", vim.lsp.buf.format, { desc = "format code" })
+		map("n", "<space>l", vim.lsp.buf.format, { desc = "format code" })
 	end
 
 	api.nvim_create_autocmd("CursorHold", {

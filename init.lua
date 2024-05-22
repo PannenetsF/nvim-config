@@ -27,7 +27,41 @@ require("lazy").setup({
 	{ "akinsho/toggleterm.nvim", version = "*", config = true },
 	"github/copilot.vim",
 	"Pocco81/auto-save.nvim",
-	"Pocco81/true-zen.nvim",
+	{
+		"Pocco81/true-zen.nvim",
+		config = function()
+			require("true-zen").setup({
+				integrations = {
+					tmux = false, -- hide tmux status bar in (minimalist, ataraxis)
+					kitty = { -- increment font size in Kitty. Note: you must set `allow_remote_control socket-only` and `listen_on unix:/tmp/kitty` in your personal config (ataraxis)
+						enabled = false,
+						font = "+3",
+					},
+					twilight = false, -- enable twilight (ataraxis)
+					lualine = true, -- hide nvim-lualine (ataraxis)
+				},
+				modes = { -- configurations per mode
+					ataraxis = {
+						minimum_writing_area = { -- minimum size of main window
+							width = 80,
+							height = 44,
+						},
+						padding = { -- padding windows
+							left = 200,
+							right = 200,
+							top = 0,
+							bottom = 0,
+						},
+					},
+					minimalist = {
+						options = {
+							relativenumber = true,
+						},
+					},
+				},
+			})
+		end,
+	},
 	{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
 	{
 		"folke/which-key.nvim",
@@ -86,6 +120,36 @@ require("lazy").setup({
 	{ "honza/vim-snippets" },
 	{ "SirVer/ultisnips", event = "InsertEnter" },
 	{ "dstein64/vim-startuptime" },
+	{
+		"ray-x/lsp_signature.nvim",
+		event = "VeryLazy",
+		opts = {},
+		config = function(_, opts)
+			require("lsp_signature").setup(opts)
+		end,
+	},
+	{
+		"rmagatti/goto-preview",
+		config = function()
+			require("goto-preview").setup({})
+		end,
+	},
+	{
+		"anuvyklack/pretty-fold.nvim",
+		config = function()
+			require("pretty-fold").setup()
+		end,
+	},
+	{
+		"anuvyklack/fold-preview.nvim",
+		requires = "anuvyklack/keymap-amend.nvim",
+		config = function()
+			require("fold-preview").setup({
+				-- Your configuration goes here.
+			})
+		end,
+	},
+	"f-person/git-blame.nvim",
 })
 
 vim.opt.termguicolors = true
@@ -110,3 +174,6 @@ vim.g.UltiSnipsUsePythonVersion = 3 -- Ensure Python3 is used
 -- Performance optimizations
 vim.o.lazyredraw = true -- Reduces flickering by not redrawing while executing macros
 vim.o.updatetime = 300 -- Reduce the time it takes to trigger the CursorHold event
+
+require("lsp_signature").setup({})
+require("gitblame").setup({ enable = true })

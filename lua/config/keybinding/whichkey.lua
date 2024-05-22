@@ -1,13 +1,31 @@
--- 设置WhichKey的触发键为<Space>
-vim.g.which_key_map_leader = " "
+local telescope = require("telescope.builtin")
+
+-- 向右分割并将当前 buffer 复制到新窗口
+local function split_right()
+	vim.cmd("vsplit")
+	vim.cmd("wincmd l")
+	vim.cmd("b #")
+end
+
+-- 向左分割并将当前 buffer 复制到新窗口
+local function split_left()
+	vim.cmd("vsplit")
+	vim.cmd("wincmd h")
+	vim.cmd("b #")
+end
 
 -- 设置 WhichKey 映射
-local which_key_map = {
+local which_key_nmap = {
+	["z"] = { "<cmd>TZAtaraxis<CR>", "+Zen Mode" },
 	["e"] = {
 		":NvimTreeToggle <CR>",
 		"Toggle NvimTree and reveal current file",
 	},
-	["E"] = { "<cmd>SidebarNvimToggle<CR>", "Toggle Sidebar" },
+	s = {
+		name = "Sidebar Management",
+		s = { "<cmd>NvimTreeFindFileToggle<CR>", "Locate the file in sidebar" },
+		g = { "<cmd>SidebarNvimToggle<CR>", "Toggle Status Bar" },
+	},
 	["g"] = { "<cmd>LazyGit<CR>", "Toggle LazyGit" },
 	["c"] = { "<cmd>BufferKill<CR>", "Close Buffer" },
 	b = {
@@ -35,6 +53,18 @@ local which_key_map = {
 			"<cmd>BufferLineSortByExtension<cr>",
 			"Sort by language",
 		},
+		["\\"] = {
+			name = "Split Buffer",
+			l = { "<cmd>lua split_left()<cr>", "Split buffer to left" },
+			r = { "<cmd>lua split_right()<cr>", "Split buffer to right" },
+		},
+	},
+	f = {
+		name = "Find",
+		f = { telescope.find_files, "Find Files" },
+		g = { telescope.live_grep, "Live Grep" },
+		b = { telescope.buffers, "Buffers" },
+		h = { telescope.help_tags, "Help Tags" },
 	},
 	t = {
 		name = "Terminal",
@@ -45,9 +75,32 @@ local which_key_map = {
 	},
 }
 
+local which_key_nopt = {
+	mode = "n", -- NORMAL mode
+	prefix = "<leader>",
+	buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
+	silent = true, -- use `silent` when creating keymaps
+	noremap = true, -- use `noremap` when creating keymaps
+	nowait = true, -- use `nowait` when creating keymaps
+}
+
+local which_key_vmapping = {}
+
+local which_key_vopt = {
+	mode = "v", -- VISUAL mode
+	prefix = "<leader>",
+	buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
+	silent = true, -- use `silent` when creating keymaps
+	noremap = true, -- use `noremap` when creating keymaps
+	nowait = true, -- use `nowait` when creating keymaps
+}
+
 -- 设置 WhichKey 映射前缀
 vim.g.which_key_leader = " "
 vim.g.which_key_timeout = 1000
+vim.g.mapleader = " "
 
 -- 启用 WhichKey
-require("which-key").register(which_key_map, { prefix = "<Space>" })
+require("which-key").register(which_key_nmap, which_key_nopt)
+_G.split_right = split_right
+_G.split_left = split_left
