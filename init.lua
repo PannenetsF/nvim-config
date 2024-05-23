@@ -18,6 +18,14 @@ require("lazy").setup({
 	{ import = "plugins" },
 	"williamboman/mason-lspconfig.nvim",
 	"LunarVim/bigfile.nvim",
+	"MunifTanjim/nui.nvim",
+	{
+		"SmiteshP/nvim-navic",
+		config = function()
+			require("config.plugins.navic").setup()
+		end,
+		event = "User FileOpened",
+	},
 	{
 		"nvim-telescope/telescope.nvim",
 		tag = "0.1.6",
@@ -111,7 +119,7 @@ require("lazy").setup({
 		},
 	},
 	{ "rafamadriz/friendly-snippets", lazy = true },
-	{ "VonHeikemen/lsp-zero.nvim" },
+	-- { "VonHeikemen/lsp-zero.nvim" },
 	{
 		"natecraddock/workspaces.nvim",
 		config = function()
@@ -162,6 +170,10 @@ commands.load(commands.defaults)
 require("config.keymappings").load_defaults()
 require("config.keybinding.copilot")
 
+require("mason").setup()
+require("mason-lspconfig").setup()
+require("lsp_signature").setup({})
+
 local viml_conf_dir = vim.fn.stdpath("config") .. "/vim/"
 vim.cmd("source " .. viml_conf_dir .. "autocommands.vim")
 vim.g.UltiSnipsSnippetDirectories = { "UltiSnips" }
@@ -177,8 +189,4 @@ vim.g.UltiSnipsUsePythonVersion = 3 -- Ensure Python3 is used
 vim.o.lazyredraw = true -- Reduces flickering by not redrawing while executing macros
 vim.o.updatetime = 300 -- Reduce the time it takes to trigger the CursorHold event
 
-require("lsp_signature").setup({})
 require("gitblame").setup({ enable = true })
-
-require("mason").setup()
-require("mason-lspconfig").setup()

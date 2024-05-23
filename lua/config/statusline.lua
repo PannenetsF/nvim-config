@@ -1,11 +1,32 @@
 local fn = vim.fn
-
+local navic = require("nvim-navic")
+local ui = require("config.icons").ui
+local git = require("config.icons").git
+local colors = {
+	bg = "#202328",
+	fg = "#bbc2cf",
+	yellow = "#ECBE7B",
+	cyan = "#008080",
+	darkblue = "#081633",
+	green = "#98be65",
+	orange = "#FF8800",
+	violet = "#a9a1e1",
+	magenta = "#c678dd",
+	purple = "#c678dd",
+	blue = "#51afef",
+	red = "#ec5f67",
+}
 local function spell()
 	if vim.o.spell then
 		return string.format("[SPELL]")
 	end
 
 	return ""
+end
+
+local window_width_limit = 100
+local hide_in_width = function()
+	return vim.o.columns > window_width_limit
 end
 
 --- show indicator for Chinese IME
@@ -157,6 +178,25 @@ require("lualine").setup({
 				sources = { "nvim_diagnostic" },
 				symbols = { error = "🆇 ", warn = "⚠️ ", info = "ℹ️ ", hint = " " },
 			},
+			{
+				function()
+					return require("nvim-treesitter").statusline({
+						indicator_size = 70,
+						type_patterns = { "class", "function", "method" },
+						separator = " > ",
+					})
+				end,
+			},
+		},
+		lualine_d = {
+			{
+				function()
+					return navic.get_location()
+				end,
+				cond = function()
+					return navic.is_available()
+				end,
+			},
 		},
 		lualine_x = {
 			"encoding",
@@ -172,6 +212,50 @@ require("lualine").setup({
 		},
 		lualine_y = {
 			"location",
+			{
+				function()
+					local buf_clients = vim.lsp.get_active_clients({ bufnr = 0 })
+					if #buf_clients == 0 then
+						return "LSP Inactive"
+					end
+
+					local buf_ft = vim.bo.filetype
+					local buf_client_names = {}
+					local copilot_active = false
+
+					-- add client
+					for _, client in pairs(buf_clients) do
+						if client.name ~= "null-ls" and client.name ~= "copilot" then
+							table.insert(buf_client_names, client.name)
+						end
+
+						if client.name == "copilot" then
+							copilot_active = true
+						end
+					end
+
+					-- -- add formatter
+					-- local formatters = require("lvim.lsp.null-ls.formatters")
+					-- local supported_formatters = formatters.list_registered(buf_ft)
+					-- vim.list_extend(buf_client_names, supported_formatters)
+					--
+					-- -- add linter
+					-- local linters = require("lvim.lsp.null-ls.linters")
+					-- local supported_linters = linters.list_registered(buf_ft)
+					-- vim.list_extend(buf_client_names, supported_linters)
+
+					local unique_client_names = table.concat(buf_client_names, ", ")
+					local language_servers = string.format("[%s]", unique_client_names)
+
+					if copilot_active then
+						language_servers = language_servers .. "%#SLCopilot#" .. " " .. git.Octoface .. "%*"
+					end
+
+					return language_servers
+				end,
+				color = { gui = "bold" },
+				cond = hide_in_width,
+			},
 		},
 		lualine_z = {
 			{
@@ -181,6 +265,13 @@ require("lualine").setup({
 			{
 				mixed_indent,
 				color = "WarningMsg",
+			},
+			{
+				"progress",
+				fmt = function()
+					return "%P/%L"
+				end,
+				color = {},
 			},
 		},
 	},
@@ -193,5 +284,15 @@ require("lualine").setup({
 		lualine_z = {},
 	},
 	tabline = {},
-	extensions = { "quickfix", "fugitive", "nvim-tree" },
+	winbar = {
+		lualine_c = {
+			{
+				"navic",
+				color_correction = "static",
+				navic_opts = { highlight = true },
+			},
+		},
+		lualine_z = { "filename" },
+	},
+	extensions = { "quickfix", "fugitive", "nvim-tree", "toggleterm" },
 })

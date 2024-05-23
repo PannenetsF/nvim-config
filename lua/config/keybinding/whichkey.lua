@@ -73,15 +73,15 @@ local which_key_nmap = {
 		v = { "<cmd>2ToggleTerm size=30 direction=vertical<cr>", "Vertical terminal" },
 		h = { "<cmd>2ToggleTerm size=30 direction=horizontal<cr>", "Horizontal terminal" },
 	},
-    p = {
-      name = "Goto preview",
-      d = { "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", "Preview Definition" },
-      t = { "<cmd>lua require('goto-preview').goto_preview_type_definition()<CR>", "Preview Type Definition" },
-      i = { "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", "Preview Implementation" },
-      D = { "<cmd>lua require('goto-preview').goto_preview_declaration()<CR>", "Preview Declaration" },
-      r = { "<cmd>lua require('goto-preview').goto_preview_references()<CR>", "Preview References" },
-      P = { "<cmd>lua require('goto-preview').close_all_win()<CR>", "Close All Previews" },
-    },
+	p = {
+		name = "Goto preview",
+		d = { "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", "Preview Definition" },
+		t = { "<cmd>lua require('goto-preview').goto_preview_type_definition()<CR>", "Preview Type Definition" },
+		i = { "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", "Preview Implementation" },
+		D = { "<cmd>lua require('goto-preview').goto_preview_declaration()<CR>", "Preview Declaration" },
+		r = { "<cmd>lua require('goto-preview').goto_preview_references()<CR>", "Preview References" },
+		P = { "<cmd>lua require('goto-preview').close_all_win()<CR>", "Close All Previews" },
+	},
 }
 
 local which_key_nopt = {

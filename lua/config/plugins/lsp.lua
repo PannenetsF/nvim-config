@@ -20,6 +20,10 @@ local set_qflist = function(buf_num, severity)
 end
 
 local custom_attach = function(client, bufnr)
+	local navic = require("nvim-navic")
+
+	navic.attach(client, bufnr)
+
 	-- Mappings.
 	local map = function(mode, l, r, opts)
 		opts = opts or {}
