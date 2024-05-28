@@ -178,15 +178,6 @@ require("lualine").setup({
 				sources = { "nvim_diagnostic" },
 				symbols = { error = "🆇 ", warn = "⚠️ ", info = "ℹ️ ", hint = " " },
 			},
-			{
-				function()
-					return require("nvim-treesitter").statusline({
-						indicator_size = 70,
-						type_patterns = { "class", "function", "method" },
-						separator = " > ",
-					})
-				end,
-			},
 		},
 		lualine_d = {
 			{

@@ -160,6 +160,7 @@ require("lazy").setup({
 		end,
 	},
 	"f-person/git-blame.nvim",
+	"puremourning/vimspector",
 })
 
 vim.opt.termguicolors = true
