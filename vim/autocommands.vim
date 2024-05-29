@@ -17,3 +17,9 @@ augroup LargeFile
   autocmd!
   autocmd BufReadPre * call s:handle_large_file()
 augroup END
+
+augroup QuickFixMapping
+  autocmd!
+  autocmd FileType qf nnoremap <buffer> q :cclose<CR>
+augroup END
+

@@ -178,16 +178,19 @@ require("lualine").setup({
 				sources = { "nvim_diagnostic" },
 				symbols = { error = "🆇 ", warn = "⚠️ ", info = "ℹ️ ", hint = " " },
 			},
-		},
-		lualine_d = {
 			{
-				function()
-					return navic.get_location()
-				end,
-				cond = function()
-					return navic.is_available()
-				end,
+				"navic",
+				color_correction = "static",
+				navic_opts = { highlight = true },
 			},
+			-- {
+			-- 	function()
+			-- 		return navic.get_location()
+			-- 	end,
+			-- 	cond = function()
+			-- 		return navic.is_available()
+			-- 	end,
+			-- },
 		},
 		lualine_x = {
 			"encoding",
@@ -275,15 +278,5 @@ require("lualine").setup({
 		lualine_z = {},
 	},
 	tabline = {},
-	winbar = {
-		lualine_c = {
-			{
-				"navic",
-				color_correction = "static",
-				navic_opts = { highlight = true },
-			},
-		},
-		lualine_z = { "filename" },
-	},
 	extensions = { "quickfix", "fugitive", "nvim-tree", "toggleterm" },
 })

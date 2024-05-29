@@ -92,10 +92,11 @@ local which_key_nmap = {
 	},
 	t = {
 		name = "Terminal",
-		f = { "<cmd>ToggleTerm<cr>", "Floating terminal" },
+		f = { "<cmd>ToggleTerm direction=float<cr>", "Floating terminal" },
 		t = { "<cmd>ToggleTerm direction=tab<cr>", "Table terminal" },
-		v = { "<cmd>2ToggleTerm size=30 direction=vertical<cr>", "Vertical terminal" },
-		h = { "<cmd>2ToggleTerm size=30 direction=horizontal<cr>", "Horizontal terminal" },
+		v = { "<cmd>2ToggleTerm size=20 direction=vertical<cr>", "Vertical terminal" },
+		h = { "<cmd>2ToggleTerm size=20 direction=horizontal<cr>", "Horizontal terminal" },
+		s = { "<cmd>ToggleTermSendVisualLines size=20 direction=horizontal<cr>", "Horizontal terminal" },
 	},
 	p = {
 		name = "Goto preview",
@@ -117,7 +118,12 @@ local which_key_nopt = {
 	nowait = true, -- use `nowait` when creating keymaps
 }
 
-local which_key_vmapping = {}
+local which_key_vmap = {
+	t = {
+		name = "Terminal",
+		s = { "<cmd>ToggleTermSendVisualLines size=20 direction=horizontal<cr>", "Send Selection to Terminal" },
+	},
+}
 
 local which_key_vopt = {
 	mode = "v", -- VISUAL mode
@@ -129,10 +135,11 @@ local which_key_vopt = {
 }
 
 -- 设置 WhichKey 映射前缀
-vim.g.which_key_leader = " "
-vim.g.which_key_timeout = 1000
+-- vim.g.which_key_leader = " "
+-- vim.g.which_key_timeout = 1000
 
 -- 启用 WhichKey
 require("which-key").register(which_key_nmap, which_key_nopt)
+require("which-key").register(which_key_vmap, which_key_vopt)
 _G.split_right = split_right
 _G.split_left = split_left

@@ -16,6 +16,44 @@ end
 vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	{ import = "plugins" },
+	{
+		"folke/noice.nvim",
+		event = "VeryLazy",
+		config = function()
+			require("noice").setup({
+				lsp = {
+					-- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+					override = {
+						["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+						["vim.lsp.util.stylize_markdown"] = true,
+						["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+					},
+					signature = {
+						enabled = false,
+					},
+				},
+				-- you can enable a preset for easier configuration
+				presets = {
+					bottom_search = true, -- use a classic bottom cmdline for search
+					command_palette = true, -- position the cmdline and popupmenu together
+					long_message_to_split = true, -- long messages will be sent to a split
+					inc_rename = false, -- enables an input dialog for inc-rename.nvim
+					lsp_doc_border = false, -- add a border to hover docs and signature help
+				},
+			})
+		end,
+		opts = {
+			-- add any options here
+		},
+		dependencies = {
+			-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+			"MunifTanjim/nui.nvim",
+			-- OPTIONAL:
+			--   `nvim-notify` is only needed, if you want to use the notification view.
+			--   If not available, we use `mini` as the fallback
+			"rcarriga/nvim-notify",
+		},
+	},
 	"williamboman/mason-lspconfig.nvim",
 	"LunarVim/bigfile.nvim",
 	"MunifTanjim/nui.nvim",
@@ -31,7 +69,50 @@ require("lazy").setup({
 		tag = "0.1.6",
 		dependencies = { "nvim-lua/plenary.nvim" },
 	},
-	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+	{
+		"catppuccin/nvim",
+		name = "catppuccin",
+		priority = 1000,
+		flavour = "auto", -- latte, frappe, macchiato, mocha
+		background = { -- :h background
+			light = "latte",
+			dark = "mocha",
+		},
+		opts = {
+			term_colors = true,
+			transparent_background = false,
+			styles = {
+				comments = {},
+				conditionals = {},
+				loops = {},
+				functions = {},
+				keywords = {},
+				strings = {},
+				variables = {},
+				numbers = {},
+				booleans = {},
+				properties = {},
+				types = {},
+			},
+			color_overrides = {
+				mocha = {
+					base = "#000000",
+					mantle = "#000000",
+					crust = "#000000",
+				},
+			},
+			integrations = {
+				telescope = {
+					enabled = true,
+					style = "nvchad",
+				},
+				dropbar = {
+					enabled = true,
+					color_mode = true,
+				},
+			},
+		},
+	},
 	"nvim-lua/plenary.nvim",
 	{ "akinsho/toggleterm.nvim", version = "*", config = true },
 	"github/copilot.vim",
@@ -161,6 +242,7 @@ require("lazy").setup({
 	},
 	"f-person/git-blame.nvim",
 	"puremourning/vimspector",
+	{ "CRAG666/code_runner.nvim", config = true },
 })
 
 vim.opt.termguicolors = true

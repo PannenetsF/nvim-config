@@ -76,6 +76,10 @@ M.config = function()
 			separator = " " .. ui.ChevronRight .. " ",
 			depth_limit = 0,
 			depth_limit_indicator = "..",
+			lsp = {
+				auto_attach = true,
+				preference = nil,
+			},
 		},
 	}
 end
