@@ -4,7 +4,7 @@ pip install -U 'python-lsp-server[all]' pylsp-mypy python-lsp-isort python-lsp-b
 install_and_configure_node() {
     local os=$(uname -s)
     local arch=$(uname -m)
-    local node_version="v14.15.4"
+    local node_version="v20.14.0"
     local install_dir="$HOME/tools/node-$node_version-$os-$arch"
 
     # Function to append Node.js to PATH in .zshrc

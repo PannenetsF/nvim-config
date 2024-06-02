@@ -21,8 +21,10 @@ end
 
 local custom_attach = function(client, bufnr)
 	local navic = require("nvim-navic")
+	-- local lsp_sig = require("lsp_signature")
 
 	navic.attach(client, bufnr)
+	-- lsp_sig.on_attach({}, bufnr)
 
 	-- Mappings.
 	local map = function(mode, l, r, opts)

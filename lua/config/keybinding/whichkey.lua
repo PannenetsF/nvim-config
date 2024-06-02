@@ -97,6 +97,7 @@ local which_key_nmap = {
 		v = { "<cmd>2ToggleTerm size=20 direction=vertical<cr>", "Vertical terminal" },
 		h = { "<cmd>2ToggleTerm size=20 direction=horizontal<cr>", "Horizontal terminal" },
 		s = { "<cmd>ToggleTermSendVisualLines size=20 direction=horizontal<cr>", "Horizontal terminal" },
+		a = { "<cmd>ToggleTermToggleAll<cr>", "Toggle all terminals" },
 	},
 	p = {
 		name = "Goto preview",

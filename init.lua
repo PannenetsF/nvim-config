@@ -59,7 +59,7 @@ require("lazy").setup({
 						["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
 					},
 					signature = {
-						enabled = false,
+						enabled = true,
 					},
 				},
 				-- you can enable a preset for easier configuration
@@ -146,7 +146,20 @@ require("lazy").setup({
 	"nvim-lua/plenary.nvim",
 	{ "akinsho/toggleterm.nvim", version = "*", config = true },
 	"github/copilot.vim",
-	"Pocco81/auto-save.nvim",
+	{
+		"Pocco81/auto-save.nvim",
+		config = function()
+			require("auto-save").setup({
+				execution_message = {
+					message = function() -- message to print on save
+						return ""
+					end,
+					dim = 0.18, -- dim the color of `message`
+					cleaning_interval = 1250, -- (milliseconds) automatically clean MsgArea after displaying `message`. See :h MsgArea
+				},
+			})
+		end,
+	},
 	{
 		"Pocco81/true-zen.nvim",
 		config = function()
@@ -240,14 +253,9 @@ require("lazy").setup({
 	{ "honza/vim-snippets" },
 	{ "SirVer/ultisnips", event = "InsertEnter" },
 	{ "dstein64/vim-startuptime" },
-	{
-		"ray-x/lsp_signature.nvim",
-		event = "VeryLazy",
-		opts = {},
-		config = function(_, opts)
-			require("lsp_signature").setup(opts)
-		end,
-	},
+	-- {
+	-- 	"ray-x/lsp_signature.nvim",
+	-- },
 	{
 		"rmagatti/goto-preview",
 		config = function()
@@ -271,8 +279,39 @@ require("lazy").setup({
 		end,
 	},
 	"f-person/git-blame.nvim",
-	"puremourning/vimspector",
+	{
+		"puremourning/vimspector",
+		init = function()
+			vim.g.vimspector_enable_mappings = "VISUAL_STUDIO"
+			vim.g.vimspector_install_gadgets = { "debugpy" }
+		end,
+	},
 	{ "CRAG666/code_runner.nvim", config = true },
+	{
+		"nvim-orgmode/orgmode",
+		event = "VeryLazy",
+		ft = { "org" },
+		config = function()
+			-- Setup orgmode
+			require("orgmode").setup({
+				org_agenda_files = "~/org/**/*",
+				org_default_notes_file = "~/org/notes.org",
+			})
+
+			-- NOTE: If you are using nvim-treesitter with `ensure_installed = "all"` option
+			-- add `org` to ignore_install
+			-- require('nvim-treesitter.configs').setup({
+			--   ensure_installed = 'all',
+			--   ignore_install = { 'org' },
+			-- })
+		end,
+	},
+	{
+		"lewis6991/gitsigns.nvim",
+		config = function()
+			require("gitsigns").setup()
+		end,
+	},
 })
 
 vim.opt.termguicolors = true
@@ -285,7 +324,7 @@ require("config.keybinding.copilot")
 
 require("mason").setup()
 require("mason-lspconfig").setup()
-require("lsp_signature").setup({})
+-- require("lsp_signature").setup({})
 
 local viml_conf_dir = vim.fn.stdpath("config") .. "/vim/"
 vim.cmd("source " .. viml_conf_dir .. "autocommands.vim")
