@@ -1,7 +1,7 @@
 return {
 	"akinsho/bufferline.nvim",
 	event = { "BufEnter" },
-	cond = firenvim_not_active,
+	dependencies = "nvim-tree/nvim-web-devicons",
 	config = function()
 		require("config.bufferline")
 	end,
