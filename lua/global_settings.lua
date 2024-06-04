@@ -1,8 +1,8 @@
 local M = {}
 
 M.load_default_options = function()
-	local icons = require("icons")
-	local utils = require("utils")
+	local icons = require("utils.icons")
+	local utils = require("utils.functions")
 	local undodir = join_paths(get_cache_dir(), "undo")
 	if not utils.is_directory(undodir) then
 		vim.fn.mkdir(undodir, "p")
@@ -111,7 +111,12 @@ M.load_global_options = function()
 	vim.g.localmapleader = " "
 end
 
+M.load_global_functions = function()
+	require("utils.global")
+end
+
 M.load_defaults = function()
+	M.load_global_functions()
 	if #vim.api.nvim_list_uis() == 0 then
 		M.load_headless_options()
 		return
@@ -120,4 +125,8 @@ M.load_defaults = function()
 	M.load_global_options()
 end
 
-return M
+M.setup = function()
+	M.load_defaults()
+end
+
+M.setup()

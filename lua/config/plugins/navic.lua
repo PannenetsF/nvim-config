@@ -1,7 +1,7 @@
 local M = {}
 
-local ui = require("config.icons").ui
-local icons = require("config.icons").kind
+local ui = require("utils.icons").ui
+local icons = require("utils.icons").kind
 local breadcrumbs = {}
 
 M.config = function()
@@ -176,7 +176,7 @@ M.get_winbar = function()
 	if excludes() then
 		return
 	end
-	local f = require("config.utils.functions")
+	local f = require("utils.functions")
 	local value = M.get_filename()
 
 	local gps_added = false

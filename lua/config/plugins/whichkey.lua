@@ -1,3 +1,4 @@
+local M = {}
 local telescope = require("telescope.builtin")
 
 -- 向右分割并将当前 buffer 复制到新窗口
@@ -136,11 +137,17 @@ local which_key_vopt = {
 }
 
 -- 设置 WhichKey 映射前缀
--- vim.g.which_key_leader = " "
+M.set_global = function()
+	vim.g.which_key_leader = " "
+	_G.split_right = split_right
+	_G.split_left = split_left
+end
 -- vim.g.which_key_timeout = 1000
-
 -- 启用 WhichKey
-require("which-key").register(which_key_nmap, which_key_nopt)
-require("which-key").register(which_key_vmap, which_key_vopt)
-_G.split_right = split_right
-_G.split_left = split_left
+M.setup = function()
+	M.set_global()
+	require("which-key").register(which_key_nmap, which_key_nopt)
+	require("which-key").register(which_key_vmap, which_key_vopt)
+end
+
+return M

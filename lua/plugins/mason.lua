@@ -6,6 +6,7 @@ return {
 	ensure_installed = {
 		"cmakelang",
 		"pyright",
+		"lua-language-server",
 	},
 	cmd = { "Mason", "MasonInstall", "MasonUninstall", "MasonUninstallAll", "MasonLog" },
 	build = function()

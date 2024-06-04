@@ -1,4 +1,4 @@
-require("bufferline").setup({
+local opts = {
 	options = {
 		numbers = "buffer_id",
 		close_command = "bdelete! %d",
@@ -43,4 +43,12 @@ require("bufferline").setup({
 		always_show_bufferline = true,
 		sort_by = "id",
 	},
-})
+}
+
+local M = {}
+
+M.setup = function()
+  require("bufferline").setup(opts)
+end
+
+return M

@@ -105,4 +105,8 @@ function M.load(collection)
 	end
 end
 
+M.setup = function()
+	M.load(M.defaults)
+end
+
 return M

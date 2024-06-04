@@ -1,7 +1,7 @@
 local fn = vim.fn
 local navic = require("nvim-navic")
-local ui = require("config.icons").ui
-local git = require("config.icons").git
+local ui = require("utils.icons").ui
+local git = require("utils.icons").git
 local colors = {
 	bg = "#202328",
 	fg = "#bbc2cf",
@@ -139,7 +139,7 @@ local virtual_env = function()
 	end
 end
 
-require("lualine").setup({
+local opts = {
 	options = {
 		icons_enabled = true,
 		theme = "auto",
@@ -279,4 +279,9 @@ require("lualine").setup({
 	},
 	tabline = {},
 	extensions = { "quickfix", "fugitive", "nvim-tree", "toggleterm" },
-})
+}
+local M = {}
+M.setup = function()
+  require("lualine").setup(opts)
+end
+return M

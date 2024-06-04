@@ -4,8 +4,7 @@ local keymap = vim.keymap
 local lsp = vim.lsp
 local diagnostic = vim.diagnostic
 
-local utils = require("utils")
-local whichkey = require("which-key")
+local utils = require("utils.functions")
 
 -- set quickfix list from diagnostics in a certain buffer, not the whole workspace
 local set_qflist = function(buf_num, severity)
