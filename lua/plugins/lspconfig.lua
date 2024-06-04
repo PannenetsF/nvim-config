@@ -26,6 +26,6 @@ return {
 		-- },
 	},
 	config = function()
-		require("config.plugins.lsp")
+		require("config.plugins.lsp.lsp").setup()
 	end,
 }

@@ -48,7 +48,7 @@ local opts = {
 local M = {}
 
 M.setup = function()
-  require("bufferline").setup(opts)
+	require("bufferline").setup(opts)
 end
 
 return M

@@ -1,7 +1,7 @@
 return {
 	"williamboman/mason.nvim",
 	config = function()
-		require("config.plugins.mason").setup()
+		require("config.plugins.lsp.mason").setup()
 	end,
 	ensure_installed = {
 		"cmakelang",

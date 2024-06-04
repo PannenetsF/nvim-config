@@ -11,6 +11,6 @@ return {
 		"quangnguyen30192/cmp-nvim-ultisnips",
 	},
 	config = function()
-		require("config.plugins.nvim-cmp")
+		require("config.plugins.tools.nvim-cmp")
 	end,
 }

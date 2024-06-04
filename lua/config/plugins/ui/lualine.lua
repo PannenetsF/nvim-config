@@ -282,6 +282,6 @@ local opts = {
 }
 local M = {}
 M.setup = function()
-  require("lualine").setup(opts)
+	require("lualine").setup(opts)
 end
 return M
