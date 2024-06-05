@@ -1,5 +1,5 @@
 local fn = vim.fn
-local navic = require("nvim-navic")
+-- local navic = require("nvim-navic")
 local ui = require("utils.icons").ui
 local git = require("utils.icons").git
 local colors = {
@@ -178,11 +178,11 @@ local opts = {
 				sources = { "nvim_diagnostic" },
 				symbols = { error = "🆇 ", warn = "⚠️ ", info = "ℹ️ ", hint = " " },
 			},
-			{
-				"navic",
-				color_correction = "static",
-				navic_opts = { highlight = true },
-			},
+			-- {
+			-- 	"navic",
+			-- 	color_correction = "static",
+			-- 	navic_opts = { highlight = true },
+			-- },
 			-- {
 			-- 	function()
 			-- 		return navic.get_location()
