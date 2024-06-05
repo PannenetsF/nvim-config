@@ -77,20 +77,33 @@ function M.get_buf_option(opt)
 	end
 end
 
+local function _extend_table(t, ext)
+  for k, v in pairs(ext) do
+    -- if k not in t, then add it  
+    -- if yes, then _extend it
+    if t[k] == nil then
+      t[k] = v
+    else
+      if type(t[k]) == "table" and type(v) == "table" then
+        _extend_table(t[k], v)
+      else
+        t[k] = v
+      end
+    end
+  end
+end
 -- 用于加载文件并检查指定属性的函数
 local function load_and_merge(path, key, m)
 	local ok, attr = pcall(dofile, path)
 	if not ok then
 		return
 	end
-	-- load if this is a table
-	-- if key in this table, merge it to M
-
 	if type(attr) == "table" then
 		if attr[key] then
-			for k, v in pairs(attr[key]) do
-				m[k] = v
-			end
+			-- for k, v in pairs(attr[key]) do
+			-- 	m[k] = v
+			-- end
+      _extend_table(m, attr[key])
 		end
 	end
 end

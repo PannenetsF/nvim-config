@@ -56,7 +56,6 @@ M.normal_key_map = {
 		b = { "<cmd>BufferLineCyclePrev<cr>", "Previous" },
 		n = { "<cmd>BufferLineCycleNext<cr>", "Next" },
 		p = { "<cmd>BufferLineTogglePin<cr>", "Pin buffer" },
-		s = { "<cmd>lua require('dropbar.api').pick()<cr>", "Focus on dropbar" },
 		C = { "<cmd>BufferLineCloseOthers<cr>", "Close other buffers" },
 		e = {
 			"<cmd>BufferLinePickClose<cr>",
