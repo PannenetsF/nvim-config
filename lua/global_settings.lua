@@ -118,7 +118,7 @@ end
 
 M.load_firenvim_settings = function()
 	local utils = require("utils.functions")
-	if utils.firenvim_active() then
+	if utils.firenvim_not_active() then
 		return
 	else
 		vim.opt.guifont = "FiraCode Nerd Font:h18"
