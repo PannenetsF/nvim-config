@@ -78,19 +78,19 @@ function M.get_buf_option(opt)
 end
 
 local function _extend_table(t, ext)
-  for k, v in pairs(ext) do
-    -- if k not in t, then add it  
-    -- if yes, then _extend it
-    if t[k] == nil then
-      t[k] = v
-    else
-      if type(t[k]) == "table" and type(v) == "table" then
-        _extend_table(t[k], v)
-      else
-        t[k] = v
-      end
-    end
-  end
+	for k, v in pairs(ext) do
+		-- if k not in t, then add it
+		-- if yes, then _extend it
+		if t[k] == nil then
+			t[k] = v
+		else
+			if type(t[k]) == "table" and type(v) == "table" then
+				_extend_table(t[k], v)
+			else
+				t[k] = v
+			end
+		end
+	end
 end
 -- 用于加载文件并检查指定属性的函数
 local function load_and_merge(path, key, m)
@@ -103,21 +103,21 @@ local function load_and_merge(path, key, m)
 			-- for k, v in pairs(attr[key]) do
 			-- 	m[k] = v
 			-- end
-      _extend_table(m, attr[key])
+			_extend_table(m, attr[key])
 		end
 	end
 end
 local function get_lua_files_recursively(path)
 	local all_lua_files = {}
-  local config_path = _G.get_config_dir()
-  if config_path then
-    -- add / if not present
-    if not config_path:match(".*/$") then
-      config_path = config_path .. "/"
-    end
-    path = config_path .. path
-  end
-  local p = io.popen('find "' .. path .. '" -type f -name "*.lua"')
+	local config_path = _G.get_config_dir()
+	if config_path then
+		-- add / if not present
+		if not config_path:match(".*/$") then
+			config_path = config_path .. "/"
+		end
+		path = config_path .. path
+	end
+	local p = io.popen('find "' .. path .. '" -type f -name "*.lua"')
 	if not p then
 		return all_lua_files
 	end

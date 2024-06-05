@@ -175,8 +175,13 @@ function M._load_copilot()
 	vim.api.nvim_set_keymap("i", "<C-E>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
 end
 
+function M._clear_highlight()
+	vim.api.nvim_set_keymap("n", "<leader>/", ":nohlsearch<CR>", { silent = true })
+end
+
 function M.load_predefined()
 	M._load_copilot()
+	M._clear_highlight()
 end
 
 M.setup = function()
