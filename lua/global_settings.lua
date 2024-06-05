@@ -116,6 +116,21 @@ M.load_global_functions = function()
 	require("utils.global")
 end
 
+M.load_firenvim_settings = function()
+	local utils = require("utils.functions")
+	if utils.firenvim_active() then
+		return
+	else
+		vim.opt.guifont = "FiraCode Nerd Font:h18"
+		vim.opt.signcolumn = "no"
+		vim.opt.ruler = false
+		vim.opt.showcmd = false
+		vim.opt.laststatus = 0
+		vim.opt.showtabline = 0
+		--
+	end
+end
+
 M.load_defaults = function()
 	M.load_global_functions()
 	if #vim.api.nvim_list_uis() == 0 then
@@ -124,6 +139,7 @@ M.load_defaults = function()
 	end
 	M.load_default_options()
 	M.load_global_options()
+  M.load_firenvim_settings()
 end
 
 M.setup = function()

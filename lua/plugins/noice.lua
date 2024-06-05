@@ -1,7 +1,7 @@
 return {
 	"folke/noice.nvim",
 	event = "VeryLazy",
-  cond = require("utils.functions").firenvim_not_active,
+	cond = require("utils.functions").firenvim_not_active,
 	config = function()
 		require("config.plugins.ui.noice").setup()
 	end,

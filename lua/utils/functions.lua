@@ -142,7 +142,7 @@ M.load_from_directory = function(dir, attr)
 end
 
 M.firenvim_not_active = function()
-  return not vim.g.started_by_firenvim
+	return not vim.g.started_by_firenvim
 end
 
 return M
