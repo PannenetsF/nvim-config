@@ -141,4 +141,8 @@ M.load_from_directory = function(dir, attr)
 	return merge_tables_from_directories(dir, attr)
 end
 
+M.firenvim_not_active = function()
+  return not vim.g.started_by_firenvim
+end
+
 return M
