@@ -108,7 +108,8 @@ end
 
 M.load_global_options = function()
 	vim.g.mapleader = " "
-	vim.g.localmapleader = " "
+	vim.g.localmapleader = ","
+	vim.g.maplocalleader = ","
 end
 
 M.load_global_functions = function()

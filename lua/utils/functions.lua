@@ -87,8 +87,6 @@ local function load_and_merge(path, key, m)
 	-- if key in this table, merge it to M
 
 	if type(attr) == "table" then
-		io.popen("echo " .. path .. " >> /tmp/log")
-		io.popen("echo " .. tostring(attr) .. key .. tostring(attr[key]) .. " >> /tmp/log")
 		if attr[key] then
 			for k, v in pairs(attr[key]) do
 				m[k] = v
@@ -98,7 +96,15 @@ local function load_and_merge(path, key, m)
 end
 local function get_lua_files_recursively(path)
 	local all_lua_files = {}
-	local p = io.popen('find "' .. path .. '" -type f -name "*.lua"')
+  local config_path = _G.get_config_dir()
+  if config_path then
+    -- add / if not present
+    if not config_path:match(".*/$") then
+      config_path = config_path .. "/"
+    end
+    path = config_path .. path
+  end
+  local p = io.popen('find "' .. path .. '" -type f -name "*.lua"')
 	if not p then
 		return all_lua_files
 	end
