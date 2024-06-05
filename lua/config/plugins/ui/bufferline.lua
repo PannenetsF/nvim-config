@@ -47,6 +47,45 @@ local opts = {
 
 local M = {}
 
+M.normal_key_map = {
+	["c"] = { "<cmd>BufferKill<CR>", "Close Buffer" },
+	b = {
+		name = "Buffers",
+		j = { "<cmd>BufferLinePick<cr>", "Jump" },
+		f = { "<cmd>Telescope buffers previewer=false<cr>", "Find" },
+		b = { "<cmd>BufferLineCyclePrev<cr>", "Previous" },
+		n = { "<cmd>BufferLineCycleNext<cr>", "Next" },
+		p = { "<cmd>BufferLineTogglePin<cr>", "Pin buffer" },
+		C = { "<cmd>BufferLineCloseOthers<cr>", "Close other buffers" },
+		e = {
+			"<cmd>BufferLinePickClose<cr>",
+			"Pick which buffer to close",
+		},
+		h = { "<cmd>BufferLineCloseLeft<cr>", "Close all to the left" },
+		l = { "<cmd>BufferLineCloseRight<cr>", "Close all to the right" },
+		D = {
+			"<cmd>BufferLineSortByDirectory<cr>",
+			"Sort by directory",
+		},
+		L = {
+			"<cmd>BufferLineSortByExtension<cr>",
+			"Sort by language",
+		},
+		["\\"] = {
+			name = "Split Buffer",
+			l = { "<cmd>lua split_left()<cr>", "Split buffer to left" },
+			r = { "<cmd>lua split_right()<cr>", "Split buffer to right" },
+		},
+	},
+}
+
+M.visual_key_map = {
+
+	t = {
+		name = "Terminal",
+		s = { "<cmd>ToggleTermSendVisualLines size=20 direction=horizontal<cr>", "Send Selection to Terminal" },
+	},
+}
 M.setup = function()
 	require("bufferline").setup(opts)
 end

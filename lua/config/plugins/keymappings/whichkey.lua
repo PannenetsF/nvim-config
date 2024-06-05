@@ -1,115 +1,8 @@
 local M = {}
-local telescope = require("telescope.builtin")
-
--- 向右分割并将当前 buffer 复制到新窗口
-local function split_right()
-	vim.cmd("vsplit")
-	vim.cmd("wincmd l")
-	vim.cmd("b #")
-end
-
--- 向左分割并将当前 buffer 复制到新窗口
-local function split_left()
-	vim.cmd("vsplit")
-	vim.cmd("wincmd h")
-	vim.cmd("b #")
-end
+local utils = require("utils.functions")
 
 -- 设置 WhichKey 映射
-local which_key_nmap = {
-	["z"] = { "<cmd>TZAtaraxis<CR>", "+Zen Mode" },
-	["e"] = {
-		":NvimTreeToggle <CR>",
-		"Toggle NvimTree and reveal current file",
-	},
-	s = {
-		name = "Sidebar Management",
-		s = { "<cmd>NvimTreeFindFileToggle<CR>", "Locate the file in sidebar" },
-		g = { "<cmd>SidebarNvimToggle<CR>", "Toggle Status Bar" },
-	},
-	["g"] = { "<cmd>LazyGit<CR>", "Toggle LazyGit" },
-	["c"] = { "<cmd>BufferKill<CR>", "Close Buffer" },
-	b = {
-		name = "Buffers",
-		j = { "<cmd>BufferLinePick<cr>", "Jump" },
-		f = { "<cmd>Telescope buffers previewer=false<cr>", "Find" },
-		b = { "<cmd>BufferLineCyclePrev<cr>", "Previous" },
-		n = { "<cmd>BufferLineCycleNext<cr>", "Next" },
-		W = { "<cmd>noautocmd w<cr>", "Save without formatting (noautocmd)" },
-		-- w = { "<cmd>BufferWipeout<cr>", "Wipeout" }, -- TODO: implement this for bufferline
-		e = {
-			"<cmd>BufferLinePickClose<cr>",
-			"Pick which buffer to close",
-		},
-		h = { "<cmd>BufferLineCloseLeft<cr>", "Close all to the left" },
-		l = {
-			"<cmd>BufferLineCloseRight<cr>",
-			"Close all to the right",
-		},
-		D = {
-			"<cmd>BufferLineSortByDirectory<cr>",
-			"Sort by directory",
-		},
-		L = {
-			"<cmd>BufferLineSortByExtension<cr>",
-			"Sort by language",
-		},
-		["\\"] = {
-			name = "Split Buffer",
-			l = { "<cmd>lua split_left()<cr>", "Split buffer to left" },
-			r = { "<cmd>lua split_right()<cr>", "Split buffer to right" },
-		},
-	},
-	d = {
-		name = "+Vimspector",
-		b = { "<Plug>VimspectorBreakpoints", "Show all BPs" },
-		c = { ":call vimspector#Continue()<CR>", "Start Debug / Continue to next BP" },
-		i = { ":call vimspector#ShowOutput('Console')<CR>", "Interactive Console" },
-		e = { ":call vimspector#ShowOutput('stderr')<CR>", "StdErr Output" },
-		o = { ":call vimspector#Restart()<CR>", "Restart Debug" },
-		r = { ":call vimspector#Reset()<CR>", "Stop debug and close debuggee" },
-		s = { ":call vimspector#Stop()<CR>", "Stop Debug" },
-		v = { "<Plug>VimspectorBalloonEval", "Balloon Eval" },
-		-- Add the custom keybindings
-		l = { ":call vimspector#Continue()<CR>", "Continue" },
-		R = { ":call vimspector#Restart()<CR>", "Restart" },
-		S = { ":call vimspector#Stop()<CR>", "Stop" },
-		p = { ":call vimspector#Pause()<CR>", "Pause" },
-		-- N = { ":call vimspector#JumpToNextBreakpoint()<CR>", "Next Breakpoint" },
-		P = { ":call vimspector#JumpToPreviousBreakpoint()<CR>", "Previous Breakpoint" },
-		t = { ":call vimspector#ToggleBreakpoint()<CR>", "Toggle Breakpoint" },
-		f = { ":call vimspector#AddFunctionBreakpoint()<CR>", "Function Breakpoint" },
-		n = { ":call vimspector#StepOver()<CR>", "Step Over" },
-		N = { ":call vimspector#StepInto()<CR>", "Step Into" },
-		u = { ":call vimspector#StepOut()<CR>", "Step Out" },
-		d = { ":call vimspector#Disassemble()<CR>", "Disassemble" },
-	},
-	f = {
-		name = "Find",
-		f = { telescope.find_files, "Find Files" },
-		g = { telescope.live_grep, "Live Grep" },
-		b = { telescope.buffers, "Buffers" },
-		h = { telescope.help_tags, "Help Tags" },
-	},
-	t = {
-		name = "Terminal",
-		f = { "<cmd>ToggleTerm direction=float<cr>", "Floating terminal" },
-		t = { "<cmd>ToggleTerm direction=tab<cr>", "Table terminal" },
-		v = { "<cmd>2ToggleTerm size=20 direction=vertical<cr>", "Vertical terminal" },
-		h = { "<cmd>2ToggleTerm size=20 direction=horizontal<cr>", "Horizontal terminal" },
-		s = { "<cmd>ToggleTermSendVisualLines size=20 direction=horizontal<cr>", "Horizontal terminal" },
-		a = { "<cmd>ToggleTermToggleAll<cr>", "Toggle all terminals" },
-	},
-	p = {
-		name = "Goto preview",
-		d = { "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", "Preview Definition" },
-		t = { "<cmd>lua require('goto-preview').goto_preview_type_definition()<CR>", "Preview Type Definition" },
-		i = { "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", "Preview Implementation" },
-		D = { "<cmd>lua require('goto-preview').goto_preview_declaration()<CR>", "Preview Declaration" },
-		r = { "<cmd>lua require('goto-preview').goto_preview_references()<CR>", "Preview References" },
-		P = { "<cmd>lua require('goto-preview').close_all_win()<CR>", "Close All Previews" },
-	},
-}
+local which_key_nmap = {}
 
 local which_key_nopt = {
 	mode = "n", -- NORMAL mode
@@ -120,12 +13,7 @@ local which_key_nopt = {
 	nowait = true, -- use `nowait` when creating keymaps
 }
 
-local which_key_vmap = {
-	t = {
-		name = "Terminal",
-		s = { "<cmd>ToggleTermSendVisualLines size=20 direction=horizontal<cr>", "Send Selection to Terminal" },
-	},
-}
+local which_key_vmap = {}
 
 local which_key_vopt = {
 	mode = "v", -- VISUAL mode
@@ -136,16 +24,24 @@ local which_key_vopt = {
 	nowait = true, -- use `nowait` when creating keymaps
 }
 
+-- 向右分割并将当前 buffer 复制到新窗口
 -- 设置 WhichKey 映射前缀
 M.set_global = function()
 	vim.g.which_key_leader = " "
-	_G.split_right = split_right
-	_G.split_left = split_left
 end
+
+M.load_plugin_specific = function()
+	local normal_map = utils.load_from_directory("lua/config/plugins/", "normal_key_map")
+	which_key_nmap = vim.tbl_extend("force", which_key_nmap, normal_map)
+	local visual_map = utils.load_from_directory("lua/config/plugins/", "visual_key_map")
+	which_key_vmap = vim.tbl_extend("force", which_key_vmap, visual_map)
+end
+
 -- vim.g.which_key_timeout = 1000
 -- 启用 WhichKey
 M.setup = function()
 	M.set_global()
+	M.load_plugin_specific()
 	require("which-key").register(which_key_nmap, which_key_nopt)
 	require("which-key").register(which_key_vmap, which_key_vopt)
 end

@@ -32,4 +32,9 @@ local M = {}
 M.setup = function()
 	require("true-zen").setup(opts)
 end
+
+M.normal_key_map = {
+	["z"] = { "<cmd>TZAtaraxis<CR>", "+Zen Mode" },
+}
+
 return M

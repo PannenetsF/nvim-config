@@ -77,4 +77,49 @@ function M.get_buf_option(opt)
 	end
 end
 
+-- 用于加载文件并检查指定属性的函数
+local function load_and_merge(path, key, m)
+	local ok, attr = pcall(dofile, path)
+	if not ok then
+		return
+	end
+	-- load if this is a table
+	-- if key in this table, merge it to M
+
+	if type(attr) == "table" then
+		io.popen("echo " .. path .. " >> /tmp/log")
+		io.popen("echo " .. tostring(attr) .. key .. tostring(attr[key]) .. " >> /tmp/log")
+		if attr[key] then
+			for k, v in pairs(attr[key]) do
+				m[k] = v
+			end
+		end
+	end
+end
+local function get_lua_files_recursively(path)
+	local all_lua_files = {}
+	local p = io.popen('find "' .. path .. '" -type f -name "*.lua"')
+	if not p then
+		return all_lua_files
+	end
+	for file in p:lines() do
+		table.insert(all_lua_files, file)
+	end
+	return all_lua_files
+end
+
+-- 定义一个主函数来启动整个过程
+local function merge_tables_from_directories(path, attr)
+	local all_lua_files = get_lua_files_recursively(path)
+	local m = {}
+	for _, file in ipairs(all_lua_files) do
+		load_and_merge(file, attr, m)
+	end
+	return m
+end
+
+M.load_from_directory = function(dir, attr)
+	return merge_tables_from_directories(dir, attr)
+end
+
 return M
