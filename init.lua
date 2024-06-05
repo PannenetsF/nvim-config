@@ -1,6 +1,5 @@
 local core_conf_files = {
 	"global_settings.lua", -- load autocommands
-	"common/global.lua",
 	"viml_load.lua", -- load autocommands
 	"lazy_load.lua", -- install all plugins first
 	"common/", -- config all needed things
