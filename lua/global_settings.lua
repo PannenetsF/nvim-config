@@ -121,6 +121,14 @@ M.load_firenvim_settings = function()
 	if utils.firenvim_not_active() then
 		return
 	else
+		vim.g.firenvim_config = {
+			localSettings = {
+				[".*"] = {
+					priority = 0,
+					takeover = "never",
+				},
+			},
+		}
 		vim.opt.guifont = "FiraCode Nerd Font:h18"
 		vim.opt.signcolumn = "no"
 		vim.opt.ruler = false
@@ -133,13 +141,13 @@ end
 
 M.load_defaults = function()
 	M.load_global_functions()
+	M.load_firenvim_settings()
 	if #vim.api.nvim_list_uis() == 0 then
 		M.load_headless_options()
 		return
 	end
 	M.load_default_options()
 	M.load_global_options()
-  M.load_firenvim_settings()
 end
 
 M.setup = function()
