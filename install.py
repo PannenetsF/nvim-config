@@ -1,0 +1,196 @@
+import os
+
+
+def get_host_type():
+    # linux, mac
+    if os.uname()[0].lower() == "linux":
+        return "linux"
+    elif os.uname()[0].lower() == "darwin":
+        return "mac"
+    else:
+        raise Exception(f"Unsupported OS {os.uname()}")
+
+
+def get_linux_packager():
+    # apt, yum, pacman
+    # find if the exe is available
+    if os.path.exists("/usr/bin/apt"):
+        return "apt"
+    elif os.path.exists("/usr/bin/yum"):
+        return "yum"
+    elif os.path.exists("/usr/bin/pacman"):
+        return "pacman"
+    else:
+        raise Exception(f"Unsupported Linux packager")
+
+
+def linux_package_install(packager, packages):
+    commands = []
+    for package in packages:
+        if packager == "apt":
+            commands.append(f"apt-get install -y {package}")
+        elif packager == "yum":
+            commands.append(f"yum install -y {package}")
+        elif packager == "pacman":
+            commands.append(f"pacman -Sy --noconfirm {package}")
+        else:
+            raise Exception(f"Unsupported Linux packager")
+    return commands
+
+
+def mac_package_install(packages):
+    commands = []
+    for package in packages:
+        commands.append(f"brew install -y {package}")
+    return commands
+
+
+def install(packager, packages):
+    if packager == "brew":
+        return mac_package_install(packages)
+    else:
+        return linux_package_install(packager, packages)
+
+
+def curl_install(url, dst, post):
+    get_files = f"curl -L {url} -o {dst}"
+    return [get_files] + post
+
+
+# name, package name, skip_mac, skip_apt, skip_yum, skip_pacman
+system_packages = [
+    ("git", ["git"], False, False, False, False),
+    ("curl", ["curl"], False, False, False, False),
+    ("wget", ["wget"], False, False, False, False),
+    ("lua", ["lua"], False, True, False, False),
+    ("lua", ["lua5.4"], True, False, True, True),
+    ("openssh", ["openssh-server"], True, False, False, False),
+    ("zsh", ["zsh"], False, False, False, False),
+    ("tmux", ["tmux"], False, False, False, False),
+    ("ripgrep", ["ripgrep"], False, False, False, False),
+    ("fzf", ["fzf"], False, False, False, False),
+]
+
+
+def node_get_curl():
+    r'''
+    https://nodejs.org/dist/v20.14.0/node-v20.14.0-darwin-arm64.tar.gz
+    https://nodejs.org/dist/v20.14.0/node-v20.14.0-darwin-x64.tar.gz
+    https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-x64.tar.xz
+    https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-arm64.tar.xz
+    '''
+    host = get_host_type()
+    cpu_arch = os.uname()[-1]
+    sys = 'darwin' if host == 'mac' else 'linux'
+    arch = 'x64' if cpu_arch == 'x86_64' else 'arm64'
+    version = 'v20.14.0'
+    url = f'https://nodejs.org/dist/{version}/node-{version}-{sys}-{arch}.tar.xz'
+    dest = '/tmp/node.tar.xz'
+    return url, dest
+
+
+
+
+def node_post_install(dest):
+    commands = []
+    tgt = '~/pfbin/node/'
+    # unzip 
+    commands.append(f"tar -xf {dest} -C {tgt}")
+    needed_env = f'export PATH=$PATH:{tgt}/bin'
+    commands.append(f'echo "{needed_env}" >> ~/.zshrc')
+    commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    return commands
+
+
+
+
+def nvim_get_curl():
+    f'''
+    https://github.com/neovim/neovim/releases/download/v0.10.0/nvim-linux64.tar.gz
+    https://github.com/neovim/neovim/releases/download/v0.10.0/nvim-macos-arm64.tar.gz
+    https://github.com/neovim/neovim/releases/download/v0.10.0/nvim-macos-x86_64.tar.gz
+    '''
+    host = get_host_type()
+    cpu_arch = os.uname()[-1]
+    sys = 'macos' if host == 'mac' else 'linux64'
+    if host == 'mac':
+        arch = 'arm64' if cpu_arch == 'arm64' else 'x86_64'
+        sys = f'macos-{arch}'
+    version = 'v0.10.0'   
+    url = f'https://github.com/neovim/neovim/releases/download/{version}/nvim-{sys}.tar.gz'
+    dest = '/tmp/nvim.tar.gz'
+    return url, dest
+
+
+
+def nvim_post_install(dest):
+    commands = []
+    tgt = '~/pfbin/nvim/'
+    # unzip 
+    commands.append(f"xattr -c {dest}")
+    commands.append(f"tar -xf {dest} -C {tgt}")
+    needed_env = f'export PATH=$PATH:{tgt}/bin'
+    commands.append(f'echo "{needed_env}" >> ~/.zshrc')
+    commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    # config 
+    commands.append(f"mkdir -p ~/.config/")
+    commands.append("git clone https://github.com/PannenetsF/nvim-config.git ~/.config/nvim")
+    return commands
+
+
+# name, url_fn, post_fn,
+curl_packages = [
+    ("node", node_get_curl, node_post_install),
+    ("nvim", nvim_get_curl, nvim_post_install),
+]
+
+npm_pacakges = [
+    "vim-language-server",
+]
+
+pip_pacakges = [
+    "pynvim",
+    "python-lsp-server[all]",
+    "pylsp-mypy",
+    "python-lsp-isort",
+    "python-lsp-black",
+]
+
+
+def main():
+    host_type = get_host_type()
+    if host_type == "linux":
+        packager = get_linux_packager()
+    else:
+        packager = "brew"
+
+    commands = []
+
+    for name, packages, skip_mac, skip_apt, skip_yum, skip_pacman in system_packages:
+        if host_type == "mac" and skip_mac:
+            continue
+        if packager == "apt" and skip_apt:
+            continue
+        if packager == "yum" and skip_yum:
+            continue
+        if packager == "pacman" and skip_pacman:
+            continue
+        commands += install(packager, packages)
+
+    for name, url_fn, post_fn in curl_packages:
+        url, dst = url_fn()
+        commands += curl_install(url, dst, post_fn(dst))
+
+
+    for name in npm_pacakges:
+        commands.append(f"npm install -g {name}")
+
+    for name in pip_pacakges:
+        commands.append(f"pip install -U {name}")
+
+    for i in commands:
+        print(i)
+
+if __name__ == "__main__":
+    main()
+
