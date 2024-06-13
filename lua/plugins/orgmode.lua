@@ -7,6 +7,11 @@ return {
 		require("orgmode").setup({
 			org_agenda_files = "~/org/**/*",
 			org_default_notes_file = "~/org/notes.org",
+      mappings = {
+        org = {
+          org_toggle_checkbox = "cic",
+        }
+      }
 		})
 
 		-- NOTE: If you are using nvim-treesitter with `ensure_installed = "all"` option
