@@ -129,7 +129,7 @@ M.load_firenvim_settings = function()
 				},
 			},
 		}
-		vim.opt.guifont = "FiraCode Nerd Font:h18"
+		vim.opt.guifont = "FiraCode Nerd Font:h24"
 		vim.opt.signcolumn = "no"
 		vim.opt.ruler = false
 		vim.opt.showcmd = false
