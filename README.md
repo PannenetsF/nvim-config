@@ -40,4 +40,8 @@
 
 Only shared resources like UI elements and functions are placed under `lua/utils/` directory.
 
+## install
 
+```
+python install.py | bash
+```
