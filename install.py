@@ -15,7 +15,7 @@ def get_linux_packager():
     # apt, yum, pacman
     # find if the exe is available
     if os.path.exists("/usr/bin/apt"):
-        return "DEBIAN_FRONTEND=noninteractive apt", "apt update -y"
+        return "apt", "apt update -y"
     elif os.path.exists("/usr/bin/yum"):
         return "yum", "yum update -y"
     elif os.path.exists("/usr/bin/pacman"):
@@ -28,7 +28,7 @@ def linux_package_install(packager, packages):
     commands = []
     for package in packages:
         if packager == "apt":
-            commands.append(f"apt-get install -y {package}")
+            commands.append(f"DEBIAN_FRONTEND=noninteractive apt-get install -y {package}")
         elif packager == "yum":
             commands.append(f"yum install -y {package}")
         elif packager == "pacman":
