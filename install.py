@@ -15,11 +15,11 @@ def get_linux_packager():
     # apt, yum, pacman
     # find if the exe is available
     if os.path.exists("/usr/bin/apt"):
-        return "apt"
+        return "apt", "apt update -y"
     elif os.path.exists("/usr/bin/yum"):
-        return "yum"
+        return "yum", "yum update -y"
     elif os.path.exists("/usr/bin/pacman"):
-        return "pacman"
+        return "pacman", "pacman -Syu --noconfirm"
     else:
         raise Exception(f"Unsupported Linux packager")
 
@@ -114,6 +114,7 @@ def node_post_install(dest):
     needed_env = f'export PATH=\\$PATH:{tgt}/bin'
     commands.append(f'echo "{needed_env}" >> ~/.zshrc')
     commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    commands.append(needed_env)
     return commands
 
 
@@ -149,6 +150,7 @@ def nvim_post_install(dest):
     needed_env = f'export PATH=\\$PATH:{tgt}/bin'
     commands.append(f'echo "{needed_env}" >> ~/.zshrc')
     commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    commands.append(needed_env)
     # add alias v and vim 
     commands.append(f'echo "alias v=nvim" >> ~/.bashrc')
     commands.append(f'echo "alias vim=nvim" >> ~/.bashrc')
@@ -189,6 +191,7 @@ def gh_post_install(dest):
     needed_env = f'export PATH=\\$PATH:{tgt}/bin'
     commands.append(f'echo "{needed_env}" >> ~/.zshrc')
     commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    commands.append(needed_env)
     return commands
 
 
@@ -242,13 +245,14 @@ pip_pacakges = [
 
 
 def main():
+    commands = []
     host_type = get_host_type()
     if host_type == "linux":
-        packager = get_linux_packager()
+        packager, update = get_linux_packager()
+        commands.append(update)
     else:
         packager = "brew"
 
-    commands = []
 
     for name, packages, skip_mac, skip_apt, skip_yum, skip_pacman in system_packages:
         if host_type == "mac" and skip_mac:
