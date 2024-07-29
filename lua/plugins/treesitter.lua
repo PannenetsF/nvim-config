@@ -19,6 +19,6 @@ return {
 	-- event = "VeryLazy",
 	build = ":TSUpdate",
 	config = function()
-		require("config.plugins.edition.treesitter")
+		require("config.plugins.edition.treesitter").setup()
 	end,
 }
