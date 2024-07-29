@@ -117,6 +117,7 @@ def node_post_install(dest):
     needed_env = f"export PATH=\\$PATH:{tgt}/bin"
     commands.append(f'echo "{needed_env}" >> ~/.zshrc')
     commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    needed_env = f"export PATH=$PATH:{tgt}/bin"
     commands.append(needed_env)
     return commands
 
@@ -150,6 +151,7 @@ def nvim_post_install(dest):
     needed_env = f"export PATH=\\$PATH:{tgt}/bin"
     commands.append(f'echo "{needed_env}" >> ~/.zshrc')
     commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    needed_env = f"export PATH=$PATH:{tgt}/bin"
     commands.append(needed_env)
     # add alias v and vim
     commands.append('echo "alias v=nvim" >> ~/.bashrc')
@@ -193,6 +195,7 @@ def gh_post_install(dest):
     needed_env = f"export PATH=\\$PATH:{tgt}/bin"
     commands.append(f'echo "{needed_env}" >> ~/.zshrc')
     commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    needed_env = f"export PATH=$PATH:{tgt}/bin"
     commands.append(needed_env)
     return commands
 
@@ -226,6 +229,8 @@ def lazygit_post_install(dest):
     needed_env = f"export PATH=\\$PATH:{tgt}/"
     commands.append(f'echo "{needed_env}" >> ~/.zshrc')
     commands.append(f'echo "{needed_env}" >> ~/.bashrc')
+    needed_env = f"export PATH=$PATH:{tgt}/"
+    commands.append(needed_env)
     return commands
 
 
