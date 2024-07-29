@@ -79,13 +79,6 @@ M.normal_key_map = {
 	},
 }
 
-M.visual_key_map = {
-
-	t = {
-		name = "Terminal",
-		s = { "<cmd>ToggleTermSendVisualLines size=20 direction=horizontal<cr>", "Send Selection to Terminal" },
-	},
-}
 M.setup = function()
 	require("bufferline").setup(opts)
 end

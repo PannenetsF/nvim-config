@@ -1,0 +1,10 @@
+{ { "<leader>t",
+    group = "Terminal",
+    nowait = true,
+    remap = false
+  }, { "<leader>ts", "<cmd>ToggleTermSendVisualLines size=20 direction=horizontal<cr>",
+    desc = "Send Selection to Terminal",
+    mode = "v",
+    nowait = true,
+    remap = false
+  } }
