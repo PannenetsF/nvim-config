@@ -1,17 +1,48 @@
 local term = require("toggleterm")
-local cpp = require("config.autocmds.cpp")
-local c = require("config.autocmds.c")
-
 local M = {}
 
-M.compile = function()
+M.compile_c = function()
+	local full_cmd = "gcc -Wall "
+		.. vim.fn.expand("%")
+		.. " -o "
+		.. vim.fn.expand("%<")
+		.. " && "
+		.. vim.fn.expand("%<")
+	return full_cmd
+end
+
+M.compile_cpp = function()
+	local full_cmd = "g++ -Wall "
+		.. vim.fn.expand("%")
+		.. " -o "
+		.. vim.fn.expand("%<")
+		.. " && "
+		.. vim.fn.expand("%<")
+	return full_cmd
+end
+
+M.run_bash = function()
+	local full_cmd = "python " .. vim.fn.expand("%")
+	return full_cmd
+end
+
+M.run_python = function()
+	local full_cmd = "python " .. vim.fn.expand("%")
+	return full_cmd
+end
+
+M.run = function()
 	-- get the file extension
 	local file_extension = vim.fn.expand("%:e")
 	local cmd = ""
 	if file_extension == "cpp" then
-		cmd = cpp.compile_cpp()
+		cmd = M.compile_cpp()
 	elseif file_extension == "c" then
-		cmd = c.compile_c()
+		cmd = M.compile_c()
+	elseif file_extension == "py" then
+		cmd = M.run_python()
+	elseif file_extension == "sh" or file_extension == "bash" then
+		cmd = M.run_bash()
 	else
 		print("Unsupported file type", file_extension)
 	end
@@ -21,7 +52,7 @@ end
 M.normal_local_key_map = {
 	r = {
 		name = "Build and Run",
-		r = { "<cmd>lua require('config.autocmds.fastrun').compile()<CR>", "Compile" },
+		r = { "<cmd>lua require('config.autocmds.run').compile()<CR>", "Run the script" },
 	},
 }
 
