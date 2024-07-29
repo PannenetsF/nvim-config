@@ -15,7 +15,7 @@ vim.cmd([[
 ---@param kill_command? string defaults to "bd"
 ---@param bufnr? number defaults to the current buffer
 ---@param force? boolean defaults to false
-function buf_kill(kill_command, bufnr, force)
+M.buf_kill = function(kill_command, bufnr, force)
 	kill_command = kill_command or "bd"
 
 	local bo = vim.bo
@@ -92,7 +92,7 @@ M.defaults = {
 	{
 		name = "BufferKill",
 		fn = function()
-			buf_kill("bd")
+			M.buf_kill("bd")
 		end,
 	},
 }
