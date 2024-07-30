@@ -52,7 +52,7 @@ end
 M.normal_local_key_map = {
 	r = {
 		name = "Build and Run",
-		r = { "<cmd>lua require('config.autocmds.run').compile()<CR>", "Run the script" },
+		r = { "<cmd>lua require('config.autocmds.fastrun').run()<CR>", "Run the script" },
 	},
 }
 
