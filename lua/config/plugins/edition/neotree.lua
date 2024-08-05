@@ -133,10 +133,10 @@ local config = {
 	window = {
 		width = 40,
 		mappings = {
-			["<1-LeftMouse>"] = "open",
+			["<tab>"] = "open",
 			["l"] = "open",
 			["<space>"] = "none",
-			["P"] = { "toggle_preview", config = { use_float = false } },
+			["P"] = { "toggle_preview", config = { use_float = true } },
 		},
 	},
 	filesystem = {
@@ -149,6 +149,22 @@ local config = {
 				["f"] = "filter_on_submit",
 				["<c-x>"] = "clear_filter",
 				["a"] = { "add", config = { show_path = "relative" } }, -- "none", "relative", "absolute"
+				["y"] = function(state)
+					-- NeoTree is based on [NuiTree](https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/tree)
+					-- The node is based on [NuiNode](https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/tree#nuitreenode)
+					local node = state.tree:get_node()
+					local filename = node.name
+					vim.fn.setreg('"', filename)
+					vim.notify("Copied: " .. filename)
+				end,
+				["Y"] = function(state)
+					-- NeoTree is based on [NuiTree](https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/tree)
+					-- The node is based on [NuiNode](https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/tree#nuitreenode)
+					local node = state.tree:get_node()
+					local filepath = node:get_id()
+					vim.fn.setreg('"', filepath)
+					vim.notify("Copied: " .. filepath)
+				end,
 			},
 		},
 		filtered_items = {
