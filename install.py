@@ -213,7 +213,7 @@ def lazygit_get_curl():
     arch = "x86_64" if cpu_arch == "x86_64" else "arm64"
     version = "v0.42.0"
     url = (
-        "https://github.com/jesseduffield/lazygit/releases/download/{version}/"
+        f"https://github.com/jesseduffield/lazygit/releases/download/{version}/"
         f"lazygit_{version[1:]}_{sys}_{arch}.tar.gz"
     )
     dest = "/tmp/lazygit.tar.gz"
