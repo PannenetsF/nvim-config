@@ -2,6 +2,8 @@ local fn = vim.fn
 
 local M = {}
 
+local plt = require('utils.platform')
+
 function M.executable(name)
 	if fn.executable(name) > 0 then
 		return true
@@ -107,6 +109,15 @@ local function load_and_merge(path, key, m)
 		end
 	end
 end
+
+local function find_luas(path)
+	if plt.platform() == "win" then
+	return io.popen('dir /s /b "' .. path .. '\\*.lua"')
+	else 
+		return  io.popen('find "' .. path .. '" -type f -name "*.lua"')
+	end
+end
+
 local function get_lua_files_recursively(path)
 	local all_lua_files = {}
 	local config_path = _G.get_config_dir()
@@ -117,7 +128,7 @@ local function get_lua_files_recursively(path)
 		end
 		path = config_path .. path
 	end
-	local p = io.popen('find "' .. path .. '" -type f -name "*.lua"')
+	local p = find_luas(path)
 	if not p then
 		return all_lua_files
 	end
@@ -132,6 +143,7 @@ local function merge_tables_from_directories(path, attr)
 	local all_lua_files = get_lua_files_recursively(path)
 	local m = {}
 	for _, file in ipairs(all_lua_files) do
+		
 		load_and_merge(file, attr, m)
 	end
 	return m
