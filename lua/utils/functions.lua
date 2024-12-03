@@ -2,7 +2,7 @@ local fn = vim.fn
 
 local M = {}
 
-local plt = require('utils.platform')
+local plt = require("utils.platform")
 
 function M.executable(name)
 	if fn.executable(name) > 0 then
@@ -112,9 +112,9 @@ end
 
 local function find_luas(path)
 	if plt.platform() == "win" then
-	return io.popen('dir /s /b "' .. path .. '\\*.lua"')
-	else 
-		return  io.popen('find "' .. path .. '" -type f -name "*.lua"')
+		return io.popen('dir /s /b "' .. path .. '\\*.lua"')
+	else
+		return io.popen('find "' .. path .. '" -type f -name "*.lua"')
 	end
 end
 
@@ -138,15 +138,32 @@ local function get_lua_files_recursively(path)
 	return all_lua_files
 end
 
+-- 定义一个函数来排序所有子table
+local function sort_table_recursive(t)
+	local keys = {}
+	for k in pairs(t) do
+		table.insert(keys, k)
+	end
+	table.sort(keys)
+	local sorted = {}
+	for _, k in ipairs(keys) do
+		local v = t[k]
+		if type(v) == "table" then
+			v = sort_table_recursive(v)
+		end
+		sorted[k] = v
+	end
+	return sorted
+end
+
 -- 定义一个主函数来启动整个过程
 local function merge_tables_from_directories(path, attr)
 	local all_lua_files = get_lua_files_recursively(path)
 	local m = {}
 	for _, file in ipairs(all_lua_files) do
-		
 		load_and_merge(file, attr, m)
 	end
-	return m
+	return sort_table_recursive(m)
 end
 
 M.load_from_directory = function(dir, attr)
