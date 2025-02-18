@@ -1,7 +1,18 @@
 import os
+import sys
 import platform
 from dataclasses import dataclass
 from typing import List, Tuple, Dict, Callable, Optional
+from logging import getLogger, StreamHandler, Formatter
+
+logger = getLogger(__name__)
+# stdout
+logger.addHandler(StreamHandler(sys.stdout))
+logger.setLevel("INFO")
+# format
+formatter = Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger.handlers[0].setFormatter(formatter)
+
 
 # ======================
 # 配置常量
@@ -87,7 +98,7 @@ class PackageManager:
         "apt": "DEBIAN_FRONTEND=noninteractive apt-get install -y",
         "yum": "yum install -y",
         "pacman": "pacman -Sy --noconfirm",
-        "brew": "brew install -y",
+        "brew": "brew install ",
     }
 
     def __init__(self, system_info: SystemInfo):
@@ -98,6 +109,7 @@ class PackageManager:
             raise ValueError(f"Unsupported packager: {self.sys.packager}")
 
         base_cmd = self.INSTALL_CMDS[self.sys.packager]
+        logger.info(f"Using {self.sys.packager} to install packages: {packages}")
         return [f"{base_cmd} {pkg}" for pkg in packages]
 
 
@@ -177,10 +189,18 @@ class MainInstaller:
 
     def _should_skip(self, pkg_info: PackageInfo) -> bool:
         if pkg_info.skip_platforms and self.sys.os_type in pkg_info.skip_platforms:
+            logger.info(f"Skipping {pkg_info.name} installation on {self.sys.os_type}")
             return True
         if pkg_info.skip_packagers and self.sys.packager in pkg_info.skip_packagers:
+            logger.info(f"Skipping {pkg_info.name} installation with {self.sys.packager}")
+            return True
+        if any(self._already_installed(pkg) for pkg in pkg_info.packages):
+            logger.info(f"{pkg_info.name} is already installed, skipping installation")
             return True
         return False
+
+    def _already_installed(self, pkg: str) -> bool:
+        return os.system(f"which {pkg} > /dev/null") == 0
 
     def _install_curl_packages(self):
         for pkg in self.config.curl_packages:
@@ -205,7 +225,8 @@ class MainInstaller:
 
     def _show_commands(self):
         for cmd in self.commands:
-            print(cmd)
+            # exec with the shell
+            os.system(cmd)
 
 
 if __name__ == "__main__":
