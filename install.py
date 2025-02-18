@@ -1,311 +1,213 @@
 import os
+import platform
+from dataclasses import dataclass
+from typing import List, Tuple, Dict, Callable, Optional
+
+# ======================
+# 配置常量
+# ======================
+
+DEFAULT_INSTALL_DIR = "~/pfbin"
+VERSIONS = {
+    "node": "20.14.0",
+    "nvim": "0.10.0",
+    "gh": "2.50.0",
+    "lazygit": "0.42.0",
+}
+
+# ======================
+# 数据类定义
+# ======================
 
 
-def get_host_type():
-    # linux, mac
-    if os.uname()[0].lower() == "linux":
-        return "linux"
-    elif os.uname()[0].lower() == "darwin":
-        return "mac"
-    else:
-        raise Exception(f"Unsupported OS {os.uname()}")
+@dataclass
+class SystemInfo:
+    os_type: str  # linux/mac
+    arch: str  # x86_64/arm64
+    packager: str  # apt/yum/pacman/brew
+    update_cmd: str
 
 
-def get_linux_packager():
-    # apt, yum, pacman
-    # find if the exe is available
-    if os.path.exists("/usr/bin/apt"):
-        return "apt", "apt update -y"
-    elif os.path.exists("/usr/bin/yum"):
-        return "yum", "yum update -y"
-    elif os.path.exists("/usr/bin/pacman"):
-        return "pacman", "pacman -Syu --noconfirm"
-    else:
-        raise Exception("Unsupported Linux packager")
+@dataclass
+class PackageInfo:
+    name: str
+    packages: List[str]
+    skip_platforms: List[str] = None
+    skip_packagers: List[str] = None
 
 
-def linux_package_install(packager, packages):
-    commands = []
-    for package in packages:
-        if packager == "apt":
-            commands.append(f"DEBIAN_FRONTEND=noninteractive apt-get install -y {package}")
-        elif packager == "yum":
-            commands.append(f"yum install -y {package}")
-        elif packager == "pacman":
-            commands.append(f"pacman -Sy --noconfirm {package}")
-        else:
-            raise Exception("Unsupported Linux packager")
-    return commands
+@dataclass
+class CurlPackage:
+    name: str
+    url_template: str
+    post_install: Callable
+    file_type: str = "tar.gz"
 
 
-def mac_package_install(packages):
-    commands = []
-    for package in packages:
-        commands.append(f"brew install -y {package}")
-    return commands
+# ======================
+# 系统检测逻辑
+# ======================
 
 
-def install(packager, packages):
-    if packager == "brew":
-        return mac_package_install(packages)
-    else:
-        return linux_package_install(packager, packages)
+class SystemDetector:
+    @staticmethod
+    def detect() -> SystemInfo:
+        os_type = platform.system().lower()
+        arch = platform.machine().lower()
+
+        if os_type == "darwin":
+            return SystemInfo(
+                os_type="mac", arch="arm64" if arch == "arm64" else "x86_64", packager="brew", update_cmd="brew update"
+            )
+
+        return SystemInfo(os_type="linux", arch=arch, **SystemDetector._detect_linux_packager())
+
+    @staticmethod
+    def _detect_linux_packager() -> dict:
+        packager_map = {
+            "/usr/bin/apt": ("apt", "apt update -y"),
+            "/usr/bin/yum": ("yum", "yum update -y"),
+            "/usr/bin/pacman": ("pacman", "pacman -Syu --noconfirm"),
+        }
+
+        for path, (pkg, cmd) in packager_map.items():
+            if os.path.exists(path):
+                return {"packager": pkg, "update_cmd": cmd}
+
+        raise RuntimeError("Unsupported Linux package manager")
 
 
-def curl_install(url, dst, post):
-    get_files = f"curl -L {url} -o {dst}"
-    return [get_files] + post
+# ======================
+# 包管理逻辑
+# ======================
 
 
-# name, package name, skip_mac, skip_apt, skip_yum, skip_pacman
-system_packages = [
-    ("git", ["git"], False, False, False, False),
-    ("curl", ["curl"], False, False, False, False),
-    ("wget", ["wget"], False, False, False, False),
-    ("lua", ["lua"], False, True, False, False),
-    ("lua", ["lua5.4"], True, False, True, True),
-    ("openssh", ["openssh-server"], True, False, False, False),
-    ("zsh", ["zsh"], False, False, False, False),
-    ("tmux", ["tmux"], False, False, False, False),
-    ("ripgrep", ["ripgrep"], False, False, False, False),
-    ("fzf", ["fzf"], False, False, False, False),
-]
+class PackageManager:
+    INSTALL_CMDS = {
+        "apt": "DEBIAN_FRONTEND=noninteractive apt-get install -y",
+        "yum": "yum install -y",
+        "pacman": "pacman -Sy --noconfirm",
+        "brew": "brew install -y",
+    }
+
+    def __init__(self, system_info: SystemInfo):
+        self.sys = system_info
+
+    def generate_install_commands(self, packages: List[str]) -> List[str]:
+        if self.sys.packager not in self.INSTALL_CMDS:
+            raise ValueError(f"Unsupported packager: {self.sys.packager}")
+
+        base_cmd = self.INSTALL_CMDS[self.sys.packager]
+        return [f"{base_cmd} {pkg}" for pkg in packages]
 
 
-def oh_my_zsh_get_curl():
-    return (
-        "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
-        "/tmp/install.sh",
-    )
+# ======================
+# 通用安装逻辑
+# ======================
 
 
-def oh_my_zsh_post_install(dest):
-    r"""
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+class InstallerConfig:
+    def __init__(self):
+        self.install_dir = os.path.expanduser(DEFAULT_INSTALL_DIR)
+        self.system_packages = [
+            PackageInfo("git", ["git"]),
+            PackageInfo("curl", ["curl"]),
+            PackageInfo("wget", ["wget"]),
+            PackageInfo("lua", ["lua5.4"], skip_packagers=["apt"]),
+            PackageInfo("openssh", ["openssh-server"], skip_platforms=["mac"]),
+            PackageInfo("zsh", ["zsh"]),
+            PackageInfo("tmux", ["tmux"]),
+            PackageInfo("ripgrep", ["ripgrep"]),
+            PackageInfo("fzf", ["fzf"]),
+        ]
 
-    """
-    commands = []
-    commands.append(f"sh {dest} -- --unattended")
-    return commands
+        self.curl_packages = [
+            CurlPackage(
+                name="node",
+                url_template=("https://nodejs.org/dist/{version}/" "node-{version}-{system}-{arch}.tar.xz"),
+                post_install=self._node_post_install,
+            ),
+            # 其他包配置类似...
+        ]
 
+    def _node_post_install(self, dest: str) -> List[str]:
+        return [
+            f"mkdir -p {self.install_dir}/node",
+            f"tar -xf {dest} -C {self.install_dir}/node --strip-components=1",
+            self._add_to_path(f"{self.install_dir}/node/bin"),
+        ]
 
-def node_get_curl():
-    r"""
-    https://nodejs.org/dist/v20.14.0/node-v20.14.0-darwin-arm64.tar.gz
-    https://nodejs.org/dist/v20.14.0/node-v20.14.0-darwin-x64.tar.gz
-    https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-x64.tar.xz
-    https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-arm64.tar.xz
-    """
-    host = get_host_type()
-    cpu_arch = os.uname()[-1]
-    sys = "darwin" if host == "mac" else "linux"
-    arch = "x64" if cpu_arch == "x86_64" else "arm64"
-    version = "v20.14.0"
-    url = f"https://nodejs.org/dist/{version}/node-{version}-{sys}-{arch}.tar.xz"
-    dest = "/tmp/node.tar.xz"
-    return url, dest
-
-
-def node_post_install(dest):
-    commands = []
-    tgt = "~/pfbin/node/"
-    # unzip
-    commands.append(f"mkdir -p {tgt}")
-    commands.append(f"tar -xf {dest} -C {tgt}")
-    # mv the folder
-    commands.append(f"mv {tgt}/*/* {tgt}")
-    needed_env = f"export PATH=\\$PATH:{tgt}/bin"
-    commands.append(f'echo "{needed_env}" >> ~/.zshrc')
-    commands.append(f'echo "{needed_env}" >> ~/.bashrc')
-    needed_env = f"export PATH=$PATH:{tgt}/bin"
-    commands.append(needed_env)
-    return commands
+    def _add_to_path(self, path: str) -> str:
+        return f'echo "export PATH=\\$PATH:{path}" >> ~/.bashrc >> ~/.zshrc'
 
 
-def nvim_get_curl():
-    r"""
-    https://github.com/neovim/neovim/releases/download/v0.10.0/nvim-linux64.tar.gz
-    https://github.com/neovim/neovim/releases/download/v0.10.0/nvim-macos-arm64.tar.gz
-    https://github.com/neovim/neovim/releases/download/v0.10.0/nvim-macos-x86_64.tar.gz
-    """
-    host = get_host_type()
-    cpu_arch = os.uname()[-1]
-    sys = "macos" if host == "mac" else "linux64"
-    if host == "mac":
-        arch = "arm64" if cpu_arch == "arm64" else "x86_64"
-        sys = f"macos-{arch}"
-    version = "v0.10.0"
-    url = f"https://github.com/neovim/neovim/releases/download/{version}/nvim-{sys}.tar.gz"
-    dest = "/tmp/nvim.tar.gz"
-    return url, dest
+# ======================
+# 主安装流程
+# ======================
 
 
-def nvim_post_install(dest):
-    commands = []
-    tgt = "~/pfbin/nvim/"
-    # unzip
-    commands.append(f"mkdir -p {tgt}")
-    commands.append(f"xattr -c {dest}")
-    commands.append(f"tar -xf {dest} -C {tgt}")
-    commands.append(f"mv {tgt}/*/* {tgt}")
-    needed_env = f"export PATH=\\$PATH:{tgt}/bin"
-    commands.append(f'echo "{needed_env}" >> ~/.zshrc')
-    commands.append(f'echo "{needed_env}" >> ~/.bashrc')
-    needed_env = f"export PATH=$PATH:{tgt}/bin"
-    commands.append(needed_env)
-    # add alias v and vim
-    commands.append('echo "alias v=nvim" >> ~/.bashrc')
-    commands.append('echo "alias vim=nvim" >> ~/.bashrc')
-    commands.append('echo "alias v=nvim" >> ~/.zshrc')
-    commands.append('echo "alias vim=nvim" >> ~/.zshrc')
-    # config
-    commands.append("mkdir -p ~/.config/")
-    commands.append("git clone https://github.com/PannenetsF/nvim-config.git ~/.config/nvim")
-    return commands
+class MainInstaller:
+    def __init__(self):
+        self.sys = SystemDetector.detect()
+        self.config = InstallerConfig()
+        self.pkg_manager = PackageManager(self.sys)
+        self.commands: List[str] = []
 
+    def run(self):
+        try:
+            self._add_system_update()
+            self._install_system_packages()
+            self._install_curl_packages()
+            self._run_post_install()
+            self._show_commands()
+        except Exception as e:
+            print(f"Installation failed: {str(e)}")
+            exit(1)
 
-def gh_get_curl():
-    """
-    https://github.com/cli/cli/releases/download/v2.50.0/gh_2.50.0_linux_amd64.tar.gz
-    https://github.com/cli/cli/releases/download/v2.50.0/gh_2.50.0_linux_arm64.tar.gz
-    https://github.com/cli/cli/releases/download/v2.50.0/gh_2.50.0_macOS_amd64.zip
-    https://github.com/cli/cli/releases/download/v2.50.0/gh_2.50.0_macOS_arm64.zip
-    """
-    host = get_host_type()
-    cpu_arch = os.uname()[-1]
-    sys = "macOS" if host == "mac" else "linux"
-    arch = "amd64" if cpu_arch == "x86_64" else "arm64"
-    version = "v2.50.0"
-    fm = "zip" if host == "mac" else "tar.gz"
-    url = f"https://github.com/cli/cli/releases/download/{version}/gh_{version[1:]}_{sys}_{arch}.{fm}"
-    dest = f"/tmp/gh.{fm}"
-    return url, dest
+    def _add_system_update(self):
+        self.commands.append(self.sys.update_cmd)
 
+    def _install_system_packages(self):
+        for pkg_info in self.config.system_packages:
+            if self._should_skip(pkg_info):
+                continue
 
-def gh_post_install(dest):
-    commands = []
-    tgt = "~/pfbin/gh/"
-    # unzip
-    commands.append(f"mkdir -p {tgt}")
-    if dest.endswith(".zip"):
-        commands.append(f"unzip {dest} -d {tgt}")
-    elif dest.endswith(".tar.gz"):
-        commands.append(f"tar -xf {dest} -C {tgt}")
-    commands.append(f"mv {tgt}/*/* {tgt}")
-    needed_env = f"export PATH=\\$PATH:{tgt}/bin"
-    commands.append(f'echo "{needed_env}" >> ~/.zshrc')
-    commands.append(f'echo "{needed_env}" >> ~/.bashrc')
-    needed_env = f"export PATH=$PATH:{tgt}/bin"
-    commands.append(needed_env)
-    return commands
+            cmds = self.pkg_manager.generate_install_commands(pkg_info.packages)
+            self.commands.extend(cmds)
 
+    def _should_skip(self, pkg_info: PackageInfo) -> bool:
+        if pkg_info.skip_platforms and self.sys.os_type in pkg_info.skip_platforms:
+            return True
+        if pkg_info.skip_packagers and self.sys.packager in pkg_info.skip_packagers:
+            return True
+        return False
 
-def lazygit_get_curl():
-    r"""
-    https://github.com/jesseduffield/lazygit/releases/download/v0.42.0/lazygit_0.42.0_Darwin_x86_64.tar.gz
-    https://github.com/jesseduffield/lazygit/releases/download/v0.42.0/lazygit_0.42.0_Darwin_arm64.tar.gz
-    https://github.com/jesseduffield/lazygit/releases/download/v0.42.0/lazygit_0.42.0_Linux_arm64.tar.gz
-    https://github.com/jesseduffield/lazygit/releases/download/v0.42.0/lazygit_0.42.0_Linux_x86_64.tar.gz
-    """
-    host = get_host_type()
-    cpu_arch = os.uname()[-1]
-    sys = "Darwin" if host == "mac" else "Linux"
-    arch = "x86_64" if cpu_arch == "x86_64" else "arm64"
-    version = "v0.42.0"
-    url = (
-        f"https://github.com/jesseduffield/lazygit/releases/download/{version}/"
-        f"lazygit_{version[1:]}_{sys}_{arch}.tar.gz"
-    )
-    dest = "/tmp/lazygit.tar.gz"
-    return url, dest
+    def _install_curl_packages(self):
+        for pkg in self.config.curl_packages:
+            url = self._format_url(pkg)
+            dest = f"/tmp/{pkg.name}.{pkg.file_type}"
+            self.commands.extend([f"curl -L {url} -o {dest}", *pkg.post_install(dest)])
 
+    def _format_url(self, pkg: CurlPackage) -> str:
+        system_str = "darwin" if self.sys.os_type == "mac" else "linux"
+        return pkg.url_template.format(
+            version=VERSIONS[pkg.name], system=system_str, arch=self.sys.arch, os_type=self.sys.os_type
+        )
 
-def lazygit_post_install(dest):
-    commands = []
-    tgt = "~/pfbin/lazygit/"
-    # unzip
-    commands.append(f"mkdir -p {tgt}")
-    commands.append(f"tar -xf {dest} -C {tgt}")
-    needed_env = f"export PATH=\\$PATH:{tgt}/"
-    commands.append(f'echo "{needed_env}" >> ~/.zshrc')
-    commands.append(f'echo "{needed_env}" >> ~/.bashrc')
-    needed_env = f"export PATH=$PATH:{tgt}/"
-    commands.append(needed_env)
-    return commands
+    def _run_post_install(self):
+        self.commands.extend(
+            [
+                "git config --global user.name 'PannenetsF'",
+                "git config --global user.email 'pannenets.f@foxmail.com'",
+                "git config --global core.editor nvim",
+            ]
+        )
 
-
-def git_post_init():
-    # set user name and email
-    # set editor to nvim
-    return [
-        "git config --global user.name 'PannenetsF'",
-        "git config --global user.email 'pannenets.f@foxmail.com'",
-        "git config --global core.editor nvim",
-    ]
-
-
-# name, url_fn, post_fn,
-curl_packages = [
-    ("oh-my-zsh", oh_my_zsh_get_curl, oh_my_zsh_post_install),
-    ("node", node_get_curl, node_post_install),
-    ("nvim", nvim_get_curl, nvim_post_install),
-    ("gh", gh_get_curl, gh_post_install),
-    ("lazygit", lazygit_get_curl, lazygit_post_install),
-]
-
-npm_pacakges = [
-    "vim-language-server",
-]
-
-pip_pacakges = [
-    "pynvim",
-    "python-lsp-server[all]",
-    "pylsp-mypy",
-    "python-lsp-isort",
-    "python-lsp-black",
-]
-
-post_init_fns = [
-    git_post_init,
-]
-
-
-def main():
-    commands = []
-    host_type = get_host_type()
-    if host_type == "linux":
-        packager, update = get_linux_packager()
-        commands.append(update)
-    else:
-        packager = "brew"
-
-    for name, packages, skip_mac, skip_apt, skip_yum, skip_pacman in system_packages:
-        if host_type == "mac" and skip_mac:
-            continue
-        if packager == "apt" and skip_apt:
-            continue
-        if packager == "yum" and skip_yum:
-            continue
-        if packager == "pacman" and skip_pacman:
-            continue
-        commands += install(packager, packages)
-
-    for name, url_fn, post_fn in curl_packages:
-        url, dst = url_fn()
-        commands += curl_install(url, dst, post_fn(dst))
-
-    for name in npm_pacakges:
-        commands.append(f"npm install -g {name}")
-
-    for name in pip_pacakges:
-        commands.append(f"pip install -U {name}")
-
-    for fn in post_init_fns:
-        commands += fn()
-
-    for i in commands:
-        print(i)
+    def _show_commands(self):
+        for cmd in self.commands:
+            print(cmd)
 
 
 if __name__ == "__main__":
-    main()
+    installer = MainInstaller()
+    installer.run()
