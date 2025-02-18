@@ -226,6 +226,7 @@ class MainInstaller:
     def _show_commands(self):
         for cmd in self.commands:
             # exec with the shell
+            logger.info(f"Running: {cmd}")
             os.system(cmd)
 
 
